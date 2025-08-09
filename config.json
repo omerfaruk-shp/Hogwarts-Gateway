@@ -1,0 +1,39 @@
+{
+    "waf_enabled": true,
+    "waf_only_on_input": false,
+    "waf_debug": true,
+    "waf_scan_headers": true,
+    "waf_paranoia": 4,
+    "waf_score_threshold": 5,
+    "waf_shadow_mode": false,
+    "waf_whitelist_paths": [],
+    "waf_honeypots": [
+        "/wp-admin", "/phpmyadmin", "/admin", "/login", "/shell",
+        "/.env", "/.git", "/backup", "/config", "/cgi-bin"
+    ],
+    "waf_path_policies": {
+        "/upload": { "pl": 4, "threshold": 4, "action": "block" },
+        "/admin": { "pl": 4, "threshold": 4, "action": "block" }
+    },
+    "waf_param_policies": {
+        "ALL": {
+            "*": {
+                "max_len": 500,
+                "regex": "^[a-zA-Z0-9 _.,;:!?@#\\-\\(\\)\\[\\]{}=+*/\\\\|]*$"
+            }
+        },
+        "GET:/search": {
+            "q": { "max_len": 100, "regex": "^[a-zA-Z0-9 ]+$" }
+        }
+    },
+    "waf_param_violation_score": 3,
+    "waf_normalize_loops": 3,
+    "waf_try_base64": true,
+    "waf_b64_max_len": 256,
+    "waf_upload_max_mb": 5,
+    "waf_forbidden_ext": [
+        ".php", ".php3", ".php4", ".php5", ".phtml", ".exe", ".bat", ".cmd",
+        ".sh", ".pl", ".py", ".rb", ".jar", ".jsp", ".asp", ".aspx", ".cer", ".csr",
+        ".scr", ".msi", ".vbs", ".wsf", ".cgi"
+    ]
+}
