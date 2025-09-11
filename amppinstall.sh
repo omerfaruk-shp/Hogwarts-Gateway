@@ -1,56 +1,44 @@
 #!/bin/bash
-# Raspberry Pi 5 LAMPP (Apache, MariaDB, PHP, phpMyAdmin) Otomatik Kurulum
-# Tüm ayarlar DEFAULT (root şifresi boş vs.)
+# Raspberry Pi LAMPP Yönetim Scripti
 
-echo "==============================="
-echo "   Raspberry Pi 5 LAMPP Setup  "
-echo "==============================="
+APACHE="apache2"
+MYSQL="mariadb"
 
-# Root kontrolü
-if [ "$EUID" -ne 0 ]; then
-  echo "❌ Lütfen root olarak çalıştırın (sudo ile)."
-  exit
-fi
+while true; do
+  clear
+  echo "=============================="
+  echo "   Raspberry Pi LAMPP Yönetim "
+  echo "=============================="
+  echo "1) Apache Başlat"
+  echo "2) Apache Durdur"
+  echo "3) Apache Yeniden Başlat"
+  echo "4) Apache Durum"
+  echo "------------------------------"
+  echo "5) MariaDB Başlat"
+  echo "6) MariaDB Durdur"
+  echo "7) MariaDB Yeniden Başlat"
+  echo "8) MariaDB Durum"
+  echo "------------------------------"
+  echo "9) Apache Loglarını İzle"
+  echo "10) MariaDB Loglarını İzle"
+  echo "11) Web Dizini (/var/www/html) Aç"
+  echo "0) Çıkış"
+  echo "=============================="
+  read -p "Seçiminiz: " secim
 
-# Sistem güncelleme
-echo "[1/6] Sistem güncelleniyor..."
-apt update && apt upgrade -y
-
-# Apache kurulumu
-echo "[2/6] Apache kuruluyor..."
-apt install apache2 -y
-systemctl enable apache2
-systemctl start apache2
-
-# MariaDB (MySQL alternatifi) kurulumu
-echo "[3/6] MariaDB kuruluyor..."
-apt install mariadb-server mariadb-client -y
-systemctl enable mariadb
-systemctl start mariadb
-
-# MariaDB güvenlik atlanıyor (default root / şifre boş)
-echo "[4/6] MariaDB root şifresi DEFAULT (boş) bırakıldı."
-
-# PHP kurulumu
-echo "[5/6] PHP kuruluyor..."
-apt install php libapache2-mod-php php-mysql php-cli php-curl php-gd php-mbstring php-xml php-zip unzip -y
-
-# PHP test dosyası
-echo "<?php phpinfo(); ?>" > /var/www/html/info.php
-
-# phpMyAdmin kurulumu (DEFAULT ayarlarla)
-echo "[6/6] phpMyAdmin kuruluyor..."
-DEBIAN_FRONTEND=noninteractive apt install phpmyadmin -y
-echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf
-systemctl restart apache2
-
-# Bilgi
-echo "=================================="
-echo "✅ Kurulum tamamlandı!"
-echo "----------------------------------"
-echo " Apache dizini   : /var/www/html"
-echo " phpMyAdmin      : http://<Raspberry-IP>/phpmyadmin"
-echo " MySQL kullanıcı : root"
-echo " MySQL şifre     : (boş)"
-echo " PHP test        : http://<Raspberry-IP>/info.php"
-echo "=================================="
+  case $secim in
+    1) sudo systemctl start $APACHE; echo "Apache başlatıldı."; sleep 2 ;;
+    2) sudo systemctl stop $APACHE; echo "Apache durduruldu."; sleep 2 ;;
+    3) sudo systemctl restart $APACHE; echo "Apache yeniden başlatıldı."; sleep 2 ;;
+    4) systemctl status $APACHE; read -p "Devam etmek için enter..." ;;
+    5) sudo systemctl start $MYSQL; echo "MariaDB başlatıldı."; sleep 2 ;;
+    6) sudo systemctl stop $MYSQL; echo "MariaDB durduruldu."; sleep 2 ;;
+    7) sudo systemctl restart $MYSQL; echo "MariaDB yeniden başlatıldı."; sleep 2 ;;
+    8) systemctl status $MYSQL; read -p "Devam etmek için enter..." ;;
+    9) sudo tail -f /var/log/apache2/error.log ;;
+    10) sudo tail -f /var/log/mysql/error.log ;;
+    11) cd /var/www/html && pwd && ls -l; read -p "Devam etmek için enter..." ;;
+    0) echo "Çıkılıyor..."; exit ;;
+    *) echo "❌ Geçersiz seçim"; sleep 2 ;;
+  esac
+done
